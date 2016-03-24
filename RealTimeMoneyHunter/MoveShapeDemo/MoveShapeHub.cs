@@ -35,6 +35,15 @@ namespace MoveShapeDemo
             // No need to send anything if our model hasn't changed
             if (_modelUpdated)
             {
+                //KJN: Update only current users shape
+                //foreach (var item in collection)
+                //{
+
+                //}
+
+
+
+
                 // This is how we can access the Clients property 
                 // in a static hub method or outside of the hub entirely
                 _hubContext.Clients.AllExcept(_model.LastUpdatedBy).updateShape(_model);
@@ -85,6 +94,8 @@ namespace MoveShapeDemo
         // We don't want the client to get the "LastUpdatedBy" property
         [JsonIgnore]
         public string LastUpdatedBy { get; set; }
+        [JsonProperty("ShapeId")]
+        public string ShapeId { get; set; }
     }
 
 }

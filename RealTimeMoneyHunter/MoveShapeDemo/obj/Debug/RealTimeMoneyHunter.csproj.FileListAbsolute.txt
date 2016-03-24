@@ -16,3 +16,21 @@ C:\Users\klas.johnsson\Documents\Mozypro_backup\Programmering\Applikationsutveck
 C:\Users\klas.johnsson\Documents\Mozypro_backup\Programmering\Applikationsutveckling Umeå universitet\Lab1\RealTimeMoneyHunter\MoveShapeDemo\obj\Debug\RealTimeMoneyHunter.csprojResolveAssemblyReference.cache
 C:\Users\klas.johnsson\Documents\Mozypro_backup\Programmering\Applikationsutveckling Umeå universitet\Lab1\RealTimeMoneyHunter\MoveShapeDemo\obj\Debug\MoveShapeDemo.dll
 C:\Users\klas.johnsson\Documents\Mozypro_backup\Programmering\Applikationsutveckling Umeå universitet\Lab1\RealTimeMoneyHunter\MoveShapeDemo\obj\Debug\MoveShapeDemo.pdb
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\MoveShapeDemo.dll.config
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\MoveShapeDemo.dll
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\MoveShapeDemo.pdb
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Microsoft.AspNet.SignalR.Core.dll
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Microsoft.Owin.dll
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Microsoft.Owin.Host.SystemWeb.dll
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Microsoft.Owin.Security.dll
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Microsoft.Web.Infrastructure.dll
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Newtonsoft.Json.dll
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Owin.dll
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Microsoft.AspNet.SignalR.Core.xml
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Microsoft.Owin.xml
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Microsoft.Owin.Host.SystemWeb.xml
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Microsoft.Owin.Security.xml
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\bin\Newtonsoft.Json.xml
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\obj\Debug\RealTimeMoneyHunter.csprojResolveAssemblyReference.cache
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\obj\Debug\MoveShapeDemo.dll
+C:\_svn\WebDev\RealTimeMoneyHunter\RealTimeMoneyHunter\MoveShapeDemo\obj\Debug\MoveShapeDemo.pdb

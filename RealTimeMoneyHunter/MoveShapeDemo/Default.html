@@ -8,6 +8,16 @@
             height: 100px;
             background-color: #FF0000;
         }
+        #shape2 {
+            width: 50px;
+            height: 50px;
+            background-color: #0000FF;
+        }
+        #shape3 {
+            width: 25px;
+            height: 25px;
+            background-color: #00FF00;
+        }
     </style>
 </head>
 <body>
@@ -37,7 +47,8 @@
                 // we get to the next location we want to be at the "last" location
                 // We also clear the animation queue so that we start a new
                 // animation and don't lag behind.
-                $shape.animate(shapeModel, { duration: updateRate, queue: false });
+                $shape.animate(shapeModel, { duration: updateRate, queue: false }); //If we want to move instantly
+                //$shape.css({ left: model.left, top: model.top });
             };
             $.connection.hub.start().done(function () {
                 $shape.draggable({
@@ -59,6 +70,101 @@
         });
     </script>
 
+    <script>
+        $(function () {
+            var moveShapeHub = $.connection.moveShapeHub,
+                $shape2 = $("#shape2"),
+                // Send a maximum of 10 messages per second
+                // (mouse movements trigger a lot of messages)
+                messageFrequency = 10,
+                // Determine how often to send messages in
+                // time to abide by the messageFrequency
+                updateRate = 1000 / messageFrequency,
+                shapeModel = {
+                    left: 0,
+                    top: 0
+                },
+                moved = false;
+            moveShapeHub.client.updateShape = function (model) {
+                shapeModel = model;
+                // Gradually move the shape towards the new location (interpolate)
+                // The updateRate is used as the duration because by the time
+                // we get to the next location we want to be at the "last" location
+                // We also clear the animation queue so that we start a new
+                // animation and don't lag behind.
+                $shape2.animate(shapeModel, { duration: updateRate, queue: false }); //If we want to move instantly
+                //$shape.css({ left: model.left, top: model.top });
+            };
+            $.connection.hub.start().done(function () {
+                $shape2.draggable({
+                    drag: function () {
+                        shapeModel = $shape2.offset();
+                        moved = true;
+                    }
+                });
+                // Start the client side server update interval
+                setInterval(updateServerModel, updateRate);
+            });
+            function updateServerModel() {
+                // Only update server if we have a new movement
+                if (moved) {
+                    moveShapeHub.server.updateModel(shapeModel);
+                    moved = false;
+                }
+            }
+        });
+    </script>
+
+
+    <script>
+        $(function () {
+            var moveShapeHub = $.connection.moveShapeHub,
+                $shape3 = $("#shape3"),
+                // Send a maximum of 10 messages per second
+                // (mouse movements trigger a lot of messages)
+                messageFrequency = 10,
+                // Determine how often to send messages in
+                // time to abide by the messageFrequency
+                updateRate = 1000 / messageFrequency,
+                shapeModel = {
+                    left: 0,
+                    top: 0
+                },
+                moved = false;
+            moveShapeHub.client.updateShape = function (model) {
+                shapeModel = model;
+                // Gradually move the shape towards the new location (interpolate)
+                // The updateRate is used as the duration because by the time
+                // we get to the next location we want to be at the "last" location
+                // We also clear the animation queue so that we start a new
+                // animation and don't lag behind.
+                $shape3.animate(shapeModel, { duration: updateRate, queue: false }); //If we want to move instantly
+                //$shape.css({ left: model.left, top: model.top });
+            };
+            $.connection.hub.start().done(function () {
+                $shape3.draggable({
+                    drag: function () {
+                        shapeModel = $shape3.offset();
+                        moved = true;
+                    }
+                });
+                // Start the client side server update interval
+                setInterval(updateServerModel, updateRate);
+            });
+            function updateServerModel() {
+                // Only update server if we have a new movement
+                if (moved) {
+                    moveShapeHub.server.updateModel(shapeModel);
+                    moved = false;
+                }
+            }
+        });
+    </script>
+
+
     <div id="shape" />
+    <div id="shape2" />
+    <div id="shape3" />
+    
 </body>
 </html>

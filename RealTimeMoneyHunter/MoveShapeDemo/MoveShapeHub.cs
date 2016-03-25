@@ -18,6 +18,7 @@ namespace MoveShapeDemo
         private bool _modelUpdated;
         public Broadcaster()
         {
+            //test to add brachs..
             // Save our hub context so we can easily use it 
             // to send to its connected clients
             _hubContext = GlobalHost.ConnectionManager.GetHubContext<MoveShapeHub>();

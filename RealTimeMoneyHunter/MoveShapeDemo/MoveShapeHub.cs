@@ -21,6 +21,7 @@ namespace MoveShapeDemo
             //test to add brachs..
             //test again
             // Save our hub context so we can easily use it 
+            // Faskdklas
             // to send to its connected clients
             _hubContext = GlobalHost.ConnectionManager.GetHubContext<MoveShapeHub>();
             _model = new ShapeModel();

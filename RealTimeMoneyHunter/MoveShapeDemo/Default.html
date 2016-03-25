@@ -40,7 +40,7 @@
     <script src="Scripts/jquery-ui-1.10.3.min.js"></script>
     <script src="Scripts/jquery.signalR-2.0.0.js"></script>
     <script src="/signalr/hubs"></script>
-    <script>
+    <!--<script>
         $(function () {
             var moveShapeHub = $.connection.moveShapeHub,
                 $shape = $("#shape"),
@@ -132,7 +132,7 @@
                 }
             }
         });
-    </script>
+    </script>-->
 
     <script>
         $(function () {
@@ -172,6 +172,20 @@
                         shapeModel = $shape3.offset();
                         moved = true;
                         shapeModel.ShapeId = 3;
+                    }
+                });
+                $shape2.draggable({
+                    drag: function () {
+                        shapeModel = $shape2.offset();
+                        moved = true;
+                        shapeModel.ShapeId = 2;
+                    }
+                });
+                $shape.draggable({
+                    drag: function () {
+                        shapeModel = $shape.offset();
+                        moved = true;
+                        shapeModel.ShapeId = 1;
                     }
                 });
                 // Start the client side server update interval

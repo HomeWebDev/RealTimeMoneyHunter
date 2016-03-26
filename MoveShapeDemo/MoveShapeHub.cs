@@ -11,7 +11,7 @@ namespace MoveShapeDemo
             new Lazy<Broadcaster>(() => new Broadcaster());
         // We're going to broadcast to all clients a maximum of 25 times per second
         private readonly TimeSpan BroadcastInterval =
-            TimeSpan.FromMilliseconds(25);
+            TimeSpan.FromMilliseconds(20);
         private readonly IHubContext _hubContext;
         private Timer _broadcastLoop;
         private ShapeModel _model;

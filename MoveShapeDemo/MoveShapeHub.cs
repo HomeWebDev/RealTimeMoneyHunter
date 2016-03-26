@@ -120,7 +120,6 @@ namespace MoveShapeDemo
             _broadcaster.UpdateCoinShape(coinModel);
         }
     }
-
     public class ShapeModel
     {
         // We declare Left and Top as lowercase with 

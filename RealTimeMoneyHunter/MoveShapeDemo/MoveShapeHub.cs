@@ -15,11 +15,11 @@ namespace MoveShapeDemo
         private readonly IHubContext _hubContext;
         private Timer _broadcastLoop;
         private ShapeModel _model;
+        private ShapeModel _coinModel;
         private bool _modelUpdated;
+        private bool _coinUpdated;
         public Broadcaster()
         {
-            //test to add brachs..
-            //test again
             // Save our hub context so we can easily use it 
             // to send to its connected clients
             _hubContext = GlobalHost.ConnectionManager.GetHubContext<MoveShapeHub>();
@@ -37,25 +37,28 @@ namespace MoveShapeDemo
             // No need to send anything if our model hasn't changed
             if (_modelUpdated)
             {
-                //KJN: Update only current users shape
-                //foreach (var item in collection)
-                //{
-
-                //}
-
-
-
-
                 // This is how we can access the Clients property 
                 // in a static hub method or outside of the hub entirely
                 _hubContext.Clients.AllExcept(_model.LastUpdatedBy).updateShape(_model);
                 _modelUpdated = false;
+            }
+
+            //If coin was updated
+            if (_coinUpdated)
+            {
+                _hubContext.Clients.All.updateCoinShape(_coinModel);
+                _coinUpdated = false;
             }
         }
         public void UpdateShape(ShapeModel clientModel)
         {
             _model = clientModel;
             _modelUpdated = true;
+        }
+        public void UpdateCoinShape(ShapeModel coinModel)
+        {
+            _coinModel = coinModel;
+            _coinUpdated = true;
         }
         public static Broadcaster Instance
         {
@@ -83,6 +86,37 @@ namespace MoveShapeDemo
             clientModel.LastUpdatedBy = Context.ConnectionId;
             // Update the shape model within our broadcaster
             _broadcaster.UpdateShape(clientModel);
+        }
+
+        public void UpdateScore(ShapeModel clientModel)
+        {
+            if (System.Web.HttpContext.Current.Application["score"] == null)
+            {
+                System.Web.HttpContext.Current.Application["score"] = 0;
+            }
+            else
+            {
+                System.Web.HttpContext.Current.Application["score"] = Convert.ToInt32(System.Web.HttpContext.Current.Application["score"]) + 1;
+            }
+
+            int testScore = Convert.ToInt32(System.Web.HttpContext.Current.Application["score"]);
+
+            clientModel.LastUpdatedBy = Context.ConnectionId;
+            // Update the shape model within our broadcaster
+            _broadcaster.UpdateShape(clientModel);
+        }
+
+        public void MoveCoin(ShapeModel coinModel)
+        {
+            //Move coin to random position within game area
+            Random rnd = new Random();
+            int randLeft = rnd.Next(1, 1000);
+            int randTop = rnd.Next(1, 500);
+            coinModel.Left = randLeft;
+            coinModel.Top = randTop;
+
+            // Update the shape model within our broadcaster
+            _broadcaster.UpdateCoinShape(coinModel);
         }
     }
     public class ShapeModel

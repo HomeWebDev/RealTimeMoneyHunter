@@ -181,14 +181,38 @@
                     $Textdemo.text(model.ShapeOwner);
                     shapeModel.ShapeOwner = model.ShapeOwner;
                 }
-                if ($Textdemo[0].textContent == user) {
-                    $shape3.draggable('enable');
-                    }
-                else
-                {
-                    $shape3.draggable('disable' );
-                }
+                var val = model.ShapeId;
+                switch (val) {
+                    case "1":
+                        if ($Textdemo[0].textContent == user) {
+                            $shape.draggable('enable');
+                            }
+                        else
+                        {
+                            $shape.draggable('disable' );
+                        }
+                        break;
+                    case "2":
+                        if ($Textdemo[0].textContent == user) {
+                            $shape2.draggable('enable');
+                            }
+                        else
+                        {
+                            $shape2.draggable('disable' );
+                        }
+                        break;
+                    case "3":
+                        if ($Textdemo[0].textContent == user) {
+                            $shape3.draggable('enable');
+                            }
+                        else
+                        {
+                            $shape3.draggable('disable' );
+                        }
+                        break;
+                    default:
 
+                }
             };
 
             $.connection.hub.start().done(function () {
@@ -230,6 +254,20 @@
 
             $('#form1').on('change', function () {
                 moveShapeHub.server.getUser();
+                var val = $('input[name=shapeOwner]:checked', '#form1').val();
+                switch (val) {
+                    case "red":
+                        shapeModel.ShapeId = 1;
+                        break;
+                    case  "blue":
+                        shapeModel.ShapeId = 2;
+                        break;
+                    case "green":
+                        shapeModel.ShapeId = 3;
+                        break;
+                    default:
+                        shapeModel.ShapeId = 0;
+                }
                 moveShapeHub.server.userChoose(shapeModel);
 
                //alert($('input[name=shapeOwner]:checked', '#form1').val()); 

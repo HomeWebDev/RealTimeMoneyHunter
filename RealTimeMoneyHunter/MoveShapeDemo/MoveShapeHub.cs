@@ -2,6 +2,8 @@
 using System.Threading;
 using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace MoveShapeDemo
 {
@@ -38,26 +40,29 @@ namespace MoveShapeDemo
             // No need to send anything if our model hasn't changed
             if (_modelUpdated)
             {
-                //KJN: Update only current users shape
-                //foreach (var item in collection)
-                //{
-
-                //}
-
-
-
-
                 // This is how we can access the Clients property 
                 // in a static hub method or outside of the hub entirely
                 _hubContext.Clients.AllExcept(_model.LastUpdatedBy).updateShape(_model);
                 _modelUpdated = false;
             }
         }
+        public void UserChoose(ShapeModel clientModel)
+        {
+            _model = clientModel;
+            //_hubContext.Clients.AllExcept(_model.LastUpdatedBy).userChoose(_model);
+            _hubContext.Clients.All.userChoose(_model);
+        }
         public void UpdateShape(ShapeModel clientModel)
         {
             _model = clientModel;
             _modelUpdated = true;
         }
+
+        public void GetUser(string user)
+        {
+            _hubContext.Clients.Client(user).getUser(user);
+        }
+
         public static Broadcaster Instance
         {
             get
@@ -71,6 +76,9 @@ namespace MoveShapeDemo
     {
         // Is set via the constructor on each creation
         private Broadcaster _broadcaster;
+        private static readonly ConcurrentDictionary<string, object> _connections =
+            new ConcurrentDictionary<string, object>();
+
         public MoveShapeHub()
             : this(Broadcaster.Instance)
         {
@@ -84,6 +92,40 @@ namespace MoveShapeDemo
             clientModel.LastUpdatedBy = Context.ConnectionId;
             // Update the shape model within our broadcaster
             _broadcaster.UpdateShape(clientModel);
+        }
+
+        public void GetUser()
+        {
+            _broadcaster.GetUser(Context.ConnectionId);
+        }
+
+        public void UserChoose(ShapeModel clientModel)
+        {
+            if (clientModel.ShapeOwner == null)
+            {
+                clientModel.LastUpdatedBy = Context.ConnectionId;
+                clientModel.ShapeOwner = Context.ConnectionId;
+                _broadcaster.UserChoose(clientModel);
+            }
+        }
+
+        public override Task OnConnected()
+        {
+            _connections.TryAdd(Context.ConnectionId, null);
+            return Clients.All.clientCountChanged(_connections.Count);
+        }
+
+        public override Task OnReconnected()
+        {
+            _connections.TryAdd(Context.ConnectionId, null);
+            return Clients.All.clientCountChanged(_connections.Count);
+        }
+
+        public override Task OnDisconnected()
+        {
+            object value;
+            _connections.TryRemove(Context.ConnectionId, out value);
+            return Clients.All.clientCountChanged(_connections.Count);
         }
     }
     public class ShapeModel
@@ -99,6 +141,10 @@ namespace MoveShapeDemo
         public string LastUpdatedBy { get; set; }
         [JsonProperty("ShapeId")]
         public string ShapeId { get; set; }
+        [JsonProperty("ShapeOwner")]
+        public string ShapeOwner { get; set; }
+
+
     }
 
 }

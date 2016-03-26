@@ -2,6 +2,8 @@
 using System.Threading;
 using Microsoft.AspNet.SignalR;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace MoveShapeDemo
 {
@@ -15,11 +17,11 @@ namespace MoveShapeDemo
         private readonly IHubContext _hubContext;
         private Timer _broadcastLoop;
         private ShapeModel _model;
-        private ShapeModel _coinModel;
         private bool _modelUpdated;
-        private bool _coinUpdated;
         public Broadcaster()
         {
+            //test to add brachs..
+            //test again
             // Save our hub context so we can easily use it 
             // Faskdklas
             // to send to its connected clients
@@ -43,24 +45,24 @@ namespace MoveShapeDemo
                 _hubContext.Clients.AllExcept(_model.LastUpdatedBy).updateShape(_model);
                 _modelUpdated = false;
             }
-
-            //If coin was updated
-            if (_coinUpdated)
-            {
-                _hubContext.Clients.All.updateCoinShape(_coinModel);
-                _coinUpdated = false;
-            }
+        }
+        public void UserChoose(ShapeModel clientModel)
+        {
+            _model = clientModel;
+            //_hubContext.Clients.AllExcept(_model.LastUpdatedBy).userChoose(_model);
+            _hubContext.Clients.All.userChoose(_model);
         }
         public void UpdateShape(ShapeModel clientModel)
         {
             _model = clientModel;
             _modelUpdated = true;
         }
-        public void UpdateCoinShape(ShapeModel coinModel)
+
+        public void GetUser(string user)
         {
-            _coinModel = coinModel;
-            _coinUpdated = true;
+            _hubContext.Clients.Client(user).getUser(user);
         }
+
         public static Broadcaster Instance
         {
             get
@@ -74,6 +76,9 @@ namespace MoveShapeDemo
     {
         // Is set via the constructor on each creation
         private Broadcaster _broadcaster;
+        private static readonly ConcurrentDictionary<string, object> _connections =
+            new ConcurrentDictionary<string, object>();
+
         public MoveShapeHub()
             : this(Broadcaster.Instance)
         {
@@ -89,35 +94,38 @@ namespace MoveShapeDemo
             _broadcaster.UpdateShape(clientModel);
         }
 
-        public void UpdateScore(ShapeModel clientModel)
+        public void GetUser()
         {
-            if (System.Web.HttpContext.Current.Application["score"] == null)
-            {
-                System.Web.HttpContext.Current.Application["score"] = 0;
-            }
-            else
-            {
-                System.Web.HttpContext.Current.Application["score"] = Convert.ToInt32(System.Web.HttpContext.Current.Application["score"]) + 1;
-            }
-
-            int testScore = Convert.ToInt32(System.Web.HttpContext.Current.Application["score"]);
-
-            clientModel.LastUpdatedBy = Context.ConnectionId;
-            // Update the shape model within our broadcaster
-            _broadcaster.UpdateShape(clientModel);
+            _broadcaster.GetUser(Context.ConnectionId);
         }
 
-        public void MoveCoin(ShapeModel coinModel)
+        public void UserChoose(ShapeModel clientModel)
         {
-            //Move coin to random position within game area
-            Random rnd = new Random();
-            int randLeft = rnd.Next(1, 1000);
-            int randTop = rnd.Next(1, 500);
-            coinModel.Left = randLeft;
-            coinModel.Top = randTop;
+            if (clientModel.ShapeOwner == null)
+            {
+                clientModel.LastUpdatedBy = Context.ConnectionId;
+                clientModel.ShapeOwner = Context.ConnectionId;
+                _broadcaster.UserChoose(clientModel);
+            }
+        }
 
-            // Update the shape model within our broadcaster
-            _broadcaster.UpdateCoinShape(coinModel);
+        public override Task OnConnected()
+        {
+            _connections.TryAdd(Context.ConnectionId, null);
+            return Clients.All.clientCountChanged(_connections.Count);
+        }
+
+        public override Task OnReconnected()
+        {
+            _connections.TryAdd(Context.ConnectionId, null);
+            return Clients.All.clientCountChanged(_connections.Count);
+        }
+
+        public override Task OnDisconnected()
+        {
+            object value;
+            _connections.TryRemove(Context.ConnectionId, out value);
+            return Clients.All.clientCountChanged(_connections.Count);
         }
     }
     public class ShapeModel
@@ -133,6 +141,10 @@ namespace MoveShapeDemo
         public string LastUpdatedBy { get; set; }
         [JsonProperty("ShapeId")]
         public string ShapeId { get; set; }
+        [JsonProperty("ShapeOwner")]
+        public string ShapeOwner { get; set; }
+
+
     }
 
 }

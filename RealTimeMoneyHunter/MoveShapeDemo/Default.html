@@ -3,41 +3,37 @@
 <head>
     <title>RealTimeMoneyHunter</title>
     <style>
+        html, body {
+            padding: 0; margin: 0;
+            width: 100%; height: 100%;
+            font-family: 'Segoe UI', Arial;
+        }
         #shape {
             width: 100px;
             height: 100px;
             background-color: #FF0000;
             position: fixed;
-            left: 0px;
-            top: 0px;
+            cursor: move;
         }
         #shape2 {
             width: 100px;
             height: 100px;
             background-color: #0000FF;
             position: fixed;
-            left: 1000px;
-            top: 0px;
+            cursor: move;
         }
         #shape3 {
             width: 100px;
             height: 100px;
             background-color: #00FF00;
             position: fixed;
-            left: 1000px;
-            top: 500px;
+            cursor: move;
         }
-        #coinshape {
-            width: 50px;
-            height: 50px;
-            background-color: #FFD700;
-            -moz-border-radius: 50px;
-	        -webkit-border-radius: 50px;
-	        border-radius: 50px;
-            position: fixed;
-            left: 500px;
-            top: 250px;
-        }
+        /*#testshape {
+            width: 25px;
+            height: 25px;
+            background-color: #000000;*/
+        
     </style>
 </head>
 <body>
@@ -45,14 +41,10 @@
     <script src="Scripts/jquery-ui-1.10.3.min.js"></script>
     <script src="Scripts/jquery.signalR-2.0.0.js"></script>
     <script src="/signalr/hubs"></script>
-
-    <script>
+    <!--<script>
         $(function () {
             var moveShapeHub = $.connection.moveShapeHub,
-                $shape3 = $("#shape3"),
-                $shape2 = $("#shape2"),
                 $shape = $("#shape"),
-                $coinshape = $("#coinshape"),
                 // Send a maximum of 10 messages per second
                 // (mouse movements trigger a lot of messages)
                 messageFrequency = 10,
@@ -63,10 +55,6 @@
                     left: 0,
                     top: 0
                 },
-                coinModel = {
-                    left: 500,
-                    top: 250
-                }
                 moved = false;
             moveShapeHub.client.updateShape = function (model) {
                 shapeModel = model;
@@ -75,38 +63,11 @@
                 // we get to the next location we want to be at the "last" location
                 // We also clear the animation queue so that we start a new
                 // animation and don't lag behind.
-                if(model.ShapeId == 3)
-                    $shape3.animate(shapeModel, { duration: updateRate, queue: false });
                 if (model.ShapeId == 1)
-                    $shape.animate(shapeModel, { duration: updateRate, queue: false });
-                if (model.ShapeId == 2)
-                    $shape2.animate(shapeModel, { duration: updateRate, queue: false });
-                //$shape.css({ left: model.left, top: model.top }); //Use this if we want to update direct instead of animation
+                    $shape.animate(shapeModel, { duration: updateRate, queue: false }); //If we want to move instantly
+                //$shape.css({ left: model.left, top: model.top });
             };
-
-            //Function to update position of coin
-            moveShapeHub.client.updateCoinShape = function (model) {
-                coinModel = model;
-                coinModel = { left: model.left, top: model.top }
-                document.getElementById("coinshape").style.left = coinModel.left + "px";
-                document.getElementById("coinshape").style.top = coinModel.top + "px";
-            };
-
             $.connection.hub.start().done(function () {
-                $shape3.draggable({
-                    drag: function () {
-                        shapeModel = $shape3.offset();
-                        moved = true;
-                        shapeModel.ShapeId = 3;
-                    }
-                });
-                $shape2.draggable({
-                    drag: function () {
-                        shapeModel = $shape2.offset();
-                        moved = true;
-                        shapeModel.ShapeId = 2;
-                    }
-                });
                 $shape.draggable({
                     drag: function () {
                         shapeModel = $shape.offset();
@@ -114,9 +75,6 @@
                         shapeModel.ShapeId = 1;
                     }
                 });
-                //Check if money taken
-                setInterval(checkIfMoneyTaken, updateRate);
-
                 // Start the client side server update interval
                 setInterval(updateServerModel, updateRate);
             });
@@ -127,42 +85,206 @@
                     moved = false;
                 }
             }
-            //Function that checks if money was taken
-            function checkIfMoneyTaken() {
-
-                // Only check for money if there is a new movement
-                if (moved) {
-
-                    moneyHit = false;
-
-                    //Check if shape is within area of coin
-                    squareOffset = 50;
-                    coinOffset = 25;
-                    distance = 75;
-                    if (shapeModel.left + squareOffset > coinModel.left + coinOffset - distance &
-                        shapeModel.left + squareOffset < coinModel.left + coinOffset + distance &
-                        shapeModel.top + squareOffset > coinModel.top + coinOffset - distance &
-                        shapeModel.top + squareOffset < coinModel.top + coinOffset + distance) {
-                        moneyHit = true;
-                    }
-
-                    //If shape was within area of coin update score and move coin
-                    if (moneyHit) {
-                        //Update score
-                        moveShapeHub.server.updateScore(shapeModel);
-
-                        //Move coin
-                        moveShapeHub.server.moveCoin(coinModel);
-                    }
-                }
-            }
         });
     </script>
 
+    <script>
+        $(function () {
+            var moveShapeHub = $.connection.moveShapeHub,
+                $shape2 = $("#shape2"),
+                // Send a maximum of 10 messages per second
+                // (mouse movements trigger a lot of messages)
+                messageFrequency = 10,
+                // Determine how often to send messages in
+                // time to abide by the messageFrequency
+                updateRate = 1000 / messageFrequency,
+                shapeModel = {
+                    left: 0,
+                    top: 0
+                },
+                moved = false;
+            moveShapeHub.client.updateShape = function (model) {
+                shapeModel = model;
+                // Gradually move the shape towards the new location (interpolate)
+                // The updateRate is used as the duration because by the time
+                // we get to the next location we want to be at the "last" location
+                // We also clear the animation queue so that we start a new
+                // animation and don't lag behind.
+                if (model.ShapeId == 2)
+                    $shape2.animate(shapeModel, { duration: updateRate, queue: false }); //If we want to move instantly
+                //$shape.css({ left: model.left, top: model.top });
+            };
+            $.connection.hub.start().done(function () {
+                $shape2.draggable({
+                    drag: function () {
+                        shapeModel = $shape2.offset();
+                        moved = true;
+                        shapeModel.ShapeId = 2;
+                    }
+                });
+                // Start the client side server update interval
+                setInterval(updateServerModel, updateRate);
+            });
+            function updateServerModel() {
+                // Only update server if we have a new movement
+                if (moved) {
+                    moveShapeHub.server.updateModel(shapeModel);
+                    moved = false;
+                }
+            }
+        });
+    </script>-->
+
+    <script>
+        $(function () {
+            var user;
+            var moveShapeHub = $.connection.moveShapeHub,
+                $shape3 = $("#shape3"),
+                $shape2 = $("#shape2"),
+                $shape = $("#shape"),
+                $Textdemo = $("#Textdemo"),
+                body = window.document.body,
+                // Send a maximum of 10 messages per second
+                // (mouse movements trigger a lot of messages)
+                messageFrequency = 10,
+            // Determine how often to send messages in
+            // time to abide by the messageFrequency
+                updateRate = 1000 / messageFrequency,
+                shapeModel = {
+                    left: 0,
+                    top: 0
+                },
+                moved = false;
+            moveShapeHub.client.updateShape = function (model) {
+                shapeModel = model;
+                // Gradually move the shape towards the new location (interpolate)
+                // The updateRate is used as the duration because by the time
+                // we get to the next location we want to be at the "last" location
+                // We also clear the animation queue so that we start a new
+                // animation and don't lag behind.
+                if(shapeModel.ShapeId == 3)
+                    $shape3.animate(shapeModel, { duration: updateRate, queue: false }); //If we want to move instantly
+                if(shapeModel.ShapeId == 1)
+                    $shape.animate(shapeModel, { duration: updateRate, queue: false }); //If we want to move instantly
+                if(shapeModel.ShapeId == 2)
+                    $shape2.animate(shapeModel, { duration: updateRate, queue: false }); //If we want to move instantly
+                //$shape.css({ left: model.left, top: model.top });
+                //$shape2.css({ left: model.left, top: model.top });
+                //$shape3.css({ left: model.left, top: model.top });
+            };
+            moveShapeHub.client.getUser = function (oo) {
+                user = oo;
+            };
+
+            moveShapeHub.client.userChoose = function (model) {
+                if (model.ShapeOwner != null) {
+                    $Textdemo.text(model.ShapeOwner);
+                    shapeModel.ShapeOwner = model.ShapeOwner;
+                }
+                var val = model.ShapeId;
+                switch (val) {
+                    case "1":
+                        if ($Textdemo[0].textContent == user) {
+                            $shape.draggable('enable');
+                            }
+                        else
+                        {
+                            $shape.draggable('disable' );
+                        }
+                        break;
+                    case "2":
+                        if ($Textdemo[0].textContent == user) {
+                            $shape2.draggable('enable');
+                            }
+                        else
+                        {
+                            $shape2.draggable('disable' );
+                        }
+                        break;
+                    case "3":
+                        if ($Textdemo[0].textContent == user) {
+                            $shape3.draggable('enable');
+                            }
+                        else
+                        {
+                            $shape3.draggable('disable' );
+                        }
+                        break;
+                    default:
+
+                }
+            };
+
+            $.connection.hub.start().done(function () {
+                $shape3.draggable({
+                    containment: "parent",
+                    drag: function () {
+                        shapeModel = $shape3.offset();
+                        moved = true;
+                        shapeModel.ShapeId = 3;
+                    }
+                });
+                $shape2.draggable({
+                    containment: "parent",
+                    drag: function () {
+                        shapeModel = $shape2.offset();
+                        moved = true;
+                        shapeModel.ShapeId = 2;
+                    }
+                });
+                $shape.draggable({
+                    containment: "parent",
+                    drag: function () {
+                        shapeModel = $shape.offset();
+                        moved = true;
+                        shapeModel.ShapeId = 1;
+                    }
+                });
+                // Start the client side server update interval
+                setInterval(updateServerModel, updateRate);
+            });
+            function updateServerModel() {
+                // Only update server if we have a new movement
+                if (moved) {
+                    moveShapeHub.server.updateModel(shapeModel);
+                    //moveShapeHub.server.userChoose(shapeModel);
+                    moved = false;
+                }
+            }
+
+            $('#form1').on('change', function () {
+                moveShapeHub.server.getUser();
+                var val = $('input[name=shapeOwner]:checked', '#form1').val();
+                switch (val) {
+                    case "red":
+                        shapeModel.ShapeId = 1;
+                        break;
+                    case  "blue":
+                        shapeModel.ShapeId = 2;
+                        break;
+                    case "green":
+                        shapeModel.ShapeId = 3;
+                        break;
+                    default:
+                        shapeModel.ShapeId = 0;
+                }
+                moveShapeHub.server.userChoose(shapeModel);
+
+               //alert($('input[name=shapeOwner]:checked', '#form1').val()); 
+            });
+        });
+    </script>
+    <form id="form1" action="">
+      <input id="red" type="radio" name="shapeOwner" value="red"> red<br>
+      <input id="blue" type="radio" name="shapeOwner" value="blue"> blue<br>
+      <input id="green" type="radio" name="shapeOwner" value="green"> green
+    </form>
+    <p id="Textdemo">hello</p>
     <div id="shape" ></div>
     <div id="shape2" ></div>
     <div id="shape3" ></div>
-    <div id="coinshape" ></div>
+
+    <!--<div id="testshape" />-->
 
 </body>
 </html>

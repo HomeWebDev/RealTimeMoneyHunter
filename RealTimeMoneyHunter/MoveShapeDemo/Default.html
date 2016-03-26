@@ -38,8 +38,6 @@
             left: 500px;
             top: 250px;
         }
-
-        }
     </style>
 </head>
 <body>
@@ -132,28 +130,30 @@
             //Function that checks if money was taken
             function checkIfMoneyTaken() {
 
-                moneyHit = false;
+                // Only check for money if there is a new movement
+                if (moved) {
 
-                //Check if shape is within area of coin
-                squareOffset = 50;
-                coinOffset = 25;
-                distance = 75;
-                if (shapeModel.left + squareOffset > coinModel.left + coinOffset - distance &
-                    shapeModel.left + squareOffset < coinModel.left + coinOffset + distance &
-                    shapeModel.top + squareOffset > coinModel.top + coinOffset - distance &
-                    shapeModel.top + squareOffset < coinModel.top + coinOffset + distance)
-                {
-                    moneyHit = true;
-                }
+                    moneyHit = false;
 
-                //If shape was within area of coin update score and move coin
-                if (moneyHit)
-                {
-                    //Update score
-                    moveShapeHub.server.updateScore(shapeModel);
+                    //Check if shape is within area of coin
+                    squareOffset = 50;
+                    coinOffset = 25;
+                    distance = 75;
+                    if (shapeModel.left + squareOffset > coinModel.left + coinOffset - distance &
+                        shapeModel.left + squareOffset < coinModel.left + coinOffset + distance &
+                        shapeModel.top + squareOffset > coinModel.top + coinOffset - distance &
+                        shapeModel.top + squareOffset < coinModel.top + coinOffset + distance) {
+                        moneyHit = true;
+                    }
 
-                    //Move coin
-                    moveShapeHub.server.moveCoin(coinModel);
+                    //If shape was within area of coin update score and move coin
+                    if (moneyHit) {
+                        //Update score
+                        moveShapeHub.server.updateScore(shapeModel);
+
+                        //Move coin
+                        moveShapeHub.server.moveCoin(coinModel);
+                    }
                 }
             }
         });

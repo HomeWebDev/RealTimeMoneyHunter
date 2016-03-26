@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>RealTimeMoneyHunter</title>
+    <style>
+        #shape {
+            width: 100px;
+            height: 100px;
+            background-color: #FF0000;
+            position: fixed;
+            left: 0px;
+            top: 0px;
+        }
+        #shape2 {
+            width: 100px;
+            height: 100px;
+            background-color: #0000FF;
+            position: fixed;
+            left: 1000px;
+            top: 0px;
+        }
+        #shape3 {
+            width: 100px;
+            height: 100px;
+            background-color: #00FF00;
+            position: fixed;
+            left: 1000px;
+            top: 500px;
+        }
+        #coinshape {
+            width: 50px;
+            height: 50px;
+            background-color: #FFD700;
+            -moz-border-radius: 50px;
+	        -webkit-border-radius: 50px;
+	        border-radius: 50px;
+            position: fixed;
+            left: 500px;
+            top: 250px;
+        }
+    </style>
+</head>
+<body>
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script src="Scripts/jquery-ui-1.10.3.min.js"></script>
+    <script src="Scripts/jquery.signalR-2.0.0.js"></script>
+    <script src="/signalr/hubs"></script>
+
+    <script>
+        $(function () {
+            var moveShapeHub = $.connection.moveShapeHub,
+                $shape3 = $("#shape3"),
+                $shape2 = $("#shape2"),
+                $shape = $("#shape"),
+                $coinshape = $("#coinshape"),
+                // Send a maximum of 10 messages per second
+                // (mouse movements trigger a lot of messages)
+                messageFrequency = 10,
+                // Determine how often to send messages in
+                // time to abide by the messageFrequency
+                updateRate = 1000 / messageFrequency,
+                shapeModel = {
+                    left: 0,
+                    top: 0
+                },
+                coinModel = {
+                    left: 500,
+                    top: 250
+                }
+                moved = false;
+            moveShapeHub.client.updateShape = function (model) {
+                shapeModel = model;
+                // Gradually move the shape towards the new location (interpolate)
+                // The updateRate is used as the duration because by the time
+                // we get to the next location we want to be at the "last" location
+                // We also clear the animation queue so that we start a new
+                // animation and don't lag behind.
+                if(model.ShapeId == 3)
+                    $shape3.animate(shapeModel, { duration: updateRate, queue: false });
+                if (model.ShapeId == 1)
+                    $shape.animate(shapeModel, { duration: updateRate, queue: false });
+                if (model.ShapeId == 2)
+                    $shape2.animate(shapeModel, { duration: updateRate, queue: false });
+                //$shape.css({ left: model.left, top: model.top }); //Use this if we want to update direct instead of animation
+            };
+
+            //Function to update position of coin
+            moveShapeHub.client.updateCoinShape = function (model) {
+                coinModel = model;
+                coinModel = { left: model.left, top: model.top }
+                document.getElementById("coinshape").style.left = coinModel.left + "px";
+                document.getElementById("coinshape").style.top = coinModel.top + "px";
+            };
+
+            $.connection.hub.start().done(function () {
+                $shape3.draggable({
+                    drag: function () {
+                        shapeModel = $shape3.offset();
+                        moved = true;
+                        shapeModel.ShapeId = 3;
+                    }
+                });
+                $shape2.draggable({
+                    drag: function () {
+                        shapeModel = $shape2.offset();
+                        moved = true;
+                        shapeModel.ShapeId = 2;
+                    }
+                });
+                $shape.draggable({
+                    drag: function () {
+                        shapeModel = $shape.offset();
+                        moved = true;
+                        shapeModel.ShapeId = 1;
+                    }
+                });
+                //Check if money taken
+                setInterval(checkIfMoneyTaken, updateRate);
+
+                // Start the client side server update interval
+                setInterval(updateServerModel, updateRate);
+            });
+            function updateServerModel() {
+                // Only update server if we have a new movement
+                if (moved) {
+                    moveShapeHub.server.updateModel(shapeModel);
+                    moved = false;
+                }
+            }
+            //Function that checks if money was taken
+            function checkIfMoneyTaken() {
+
+                // Only check for money if there is a new movement
+                if (moved) {
+
+                    moneyHit = false;
+
+                    //Check if shape is within area of coin
+                    squareOffset = 50;
+                    coinOffset = 25;
+                    distance = 75;
+                    if (shapeModel.left + squareOffset > coinModel.left + coinOffset - distance &
+                        shapeModel.left + squareOffset < coinModel.left + coinOffset + distance &
+                        shapeModel.top + squareOffset > coinModel.top + coinOffset - distance &
+                        shapeModel.top + squareOffset < coinModel.top + coinOffset + distance) {
+                        moneyHit = true;
+                    }
+
+                    //If shape was within area of coin update score and move coin
+                    if (moneyHit) {
+                        //Update score
+                        moveShapeHub.server.updateScore(shapeModel);
+
+                        //Move coin
+                        moveShapeHub.server.moveCoin(coinModel);
+                    }
+                }
+            }
+        });
+    </script>
+
+    <div id="shape" ></div>
+    <div id="shape2" ></div>
+    <div id="shape3" ></div>
+    <div id="coinshape" ></div>
+
+</body>
+</html>

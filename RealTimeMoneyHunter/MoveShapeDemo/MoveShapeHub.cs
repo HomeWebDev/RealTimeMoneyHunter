@@ -111,9 +111,18 @@ namespace MoveShapeDemo
 
         public override Task OnConnected()
         {
+            ShapeModel sm = new ShapeModel();
+            sm.ShapeOwner = Context.ConnectionId;
             _connections.TryAdd(Context.ConnectionId, null);
-            return Clients.All.clientCountChanged(_connections.Count);
+            sm.ShapeId = "player"+_connections.Count.ToString();
+            return Clients.All.clientConnected(sm);
         }
+
+        //public override Task OnConnected()
+        //{
+        //    _connections.TryAdd(Context.ConnectionId, null);
+        //    return Clients.All.clientCountChanged(_connections.Count);
+        //}
 
         public override Task OnReconnected()
         {
@@ -123,10 +132,21 @@ namespace MoveShapeDemo
 
         public override Task OnDisconnected()
         {
+            ShapeModel sm = new ShapeModel();
+            sm.ShapeOwner = Context.ConnectionId;
+            sm.ShapeId = "player" + _connections.Count.ToString();
             object value;
             _connections.TryRemove(Context.ConnectionId, out value);
-            return Clients.All.clientCountChanged(_connections.Count);
+            return Clients.AllExcept(Context.ConnectionId).clientDisconnected(sm);
         }
+
+
+        //public override Task OnDisconnected()
+        //{
+        //    object value;
+        //    _connections.TryRemove(Context.ConnectionId, out value);
+        //    return Clients.All.clientCountChanged(_connections.Count);
+        //}
     }
     public class ShapeModel
     {
